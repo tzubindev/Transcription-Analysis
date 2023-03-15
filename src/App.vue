@@ -153,17 +153,19 @@ export default {
 	methods: {
 		event_change(event_name, e) {
 			if (event_name === "word_trends") {
-				if (!e.isClicked) {
-					const re = new RegExp(e.word);
+				const re = new RegExp(e.word);
 
-					var conversations = document.getElementsByClassName("conv");
-					for (let conv of conversations) {
-						let text = conv.getElementsByTagName("p")[0].innerHTML;
-						if (re.test(text)) {
+				var conversations = document.getElementsByClassName("conv");
+				for (let conv of conversations) {
+					let text = conv.getElementsByTagName("p")[0].innerHTML;
+					if (re.test(text)) {
+						if (!e.isClicked) {
 							conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(e.word, "<span class='highlight'>" + e.word + "</span>");
+						} else {
+							console.log("Unclicked");
+							// conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace("<span class='highlight'>", "").replace("</span>", "");
 						}
 					}
-				} else {
 				}
 
 				e.isClicked = !e.isClicked;
