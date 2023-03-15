@@ -37,9 +37,9 @@
 				<div class="p-2 px-1 h-full text-xs overflow-y-auto">
 					<div v-for="c in conversations" :key="c.id" class="my-1">
 						<div v-if="c.from === 'agent'" class="flex justify-end flex-wrap">
-							<div v-if="c.content_type === 'text'" class="tooltip break-words shadow-md text-white font-semibold rounded-lg p-4 py-3 transition bg-orange-400 cursor-pointer hover:bg-orange-500 text-left float-right max-w-[80%]">
-								{{ c.content
-								}}<span class="tooltiptext-l bg-gray-800/50 text-white"
+							<div v-if="c.content_type === 'text'" class="conv tooltip break-words shadow-md text-white font-semibold rounded-lg p-4 py-3 transition bg-orange-400 cursor-pointer hover:bg-orange-500 text-left float-right max-w-[80%]">
+								<p>{{ c.content }}</p>
+								<span class="tooltiptext-l bg-gray-800/50 text-white"
 									><p>{{ c.sentiment }}</p>
 									<p>Confidence: {{ c.confidence }}</p></span
 								>
@@ -49,9 +49,9 @@
 						</div>
 						<div v-if="c.from === 'client'" class="flex justify-start flex-wrap">
 							<div class="rounded-full h-8 w-8 mx-2 mr-1 bg-green-400 p-2"><img src="./assets/customer.png" /></div>
-							<div v-if="c.content_type === 'text'" class="tooltip break-words shadow-md text-gray-800 font-semibold rounded-lg p-4 py-3 transition bg-green-300 cursor-pointer hover:bg-green-400 text-left float-right max-w-[80%]">
-								{{ c.content
-								}}<span class="tooltiptext-r bg-gray-800/50 text-white"
+							<div v-if="c.content_type === 'text'" class="conv tooltip break-words shadow-md text-gray-800 font-semibold rounded-lg p-4 py-3 transition bg-green-300 cursor-pointer hover:bg-green-400 text-left float-right max-w-[80%]">
+								<p>{{ c.content }}</p>
+								<span class="tooltiptext-r bg-gray-800/50 text-white"
 									><p>{{ c.sentiment }}</p>
 									<p>Confidence: {{ c.confidence }}</p></span
 								>
@@ -105,7 +105,7 @@ export default {
 			display_words: [
 				{ word: "package", isClicked: false, count: 10 },
 				{ word: "asdas", isClicked: false, count: 8 },
-				{ word: "vsdvs", isClicked: true, count: 5 },
+				{ word: "vsdvs", isClicked: false, count: 5 },
 				{ word: "dsfwe", isClicked: false, count: 3 },
 				{ word: "qr12312312", isClicked: false, count: 2 },
 				{ word: "dsasdas", isClicked: false, count: 2 },
@@ -153,25 +153,20 @@ export default {
 	methods: {
 		event_change(event_name, e) {
 			if (event_name === "word_trends") {
-				e.isClicked = !e.isClicked;
-				let new_conversations = this.conversations;
-				const re = new RegExp(e.word, "i");
+				if (!e.isClicked) {
+					const re = new RegExp(e.word);
 
-				for (let i = 0; i < new_conversations.length; i++) {
-					if (re.test(new_conversations[i].content)) {
-						new_conversations[i].content = new_conversations[i].content
-							.split(" ")
-							.map(function (word) {
-								if (re.test(word)) {
-									word = "<span class='highlight'>" + word + "</span>";
-								}
-							})
-							.join(" ")
-							.trim();
-
-						console.log("DEBUG", new_conversations[i].content.split(" "));
+					var conversations = document.getElementsByClassName("conv");
+					for (let conv of conversations) {
+						let text = conv.getElementsByTagName("p")[0].innerHTML;
+						if (re.test(text)) {
+							conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(e.word, "<span class='highlight'>" + e.word + "</span>");
+						}
 					}
+				} else {
 				}
+
+				e.isClicked = !e.isClicked;
 			}
 		},
 		searchWords(word) {
@@ -190,6 +185,13 @@ body {
 	-webkit-user-select: none; /* Safari */
 	-ms-user-select: none; /* IE 10 and IE 11 */
 	user-select: none; /* Standard syntax */
+}
+
+.highlight {
+	background-color: #c35757;
+	color: #fff;
+	padding: 5px;
+	border-radius: 8px;
 }
 
 .tooltip {
