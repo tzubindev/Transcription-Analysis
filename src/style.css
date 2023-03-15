@@ -9,7 +9,7 @@
 
 	color-scheme: light dark;
 	color: black;
-	background-color: #f7f7f7;
+	background-color: #f2f0f0;
 
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
@@ -18,14 +18,8 @@
 	-webkit-text-size-adjust: 100%;
 }
 
-.card {
-	padding: 2em;
-}
-
 #app {
-	max-width: 1280px;
 	margin: 0 auto;
-	padding: 2rem;
 	text-align: center;
 }
 
