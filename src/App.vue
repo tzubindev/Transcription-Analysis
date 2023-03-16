@@ -18,7 +18,7 @@
 					<input type="text" class="text-xs p-1 grow bg-transparent border-gray-300 border-b-2 focus:outline-none" v-model="search" @input="searchWords(search)" placeholder="Search..." />
 				</div>
 				<div class="w-full overflow-y-auto overflow-x-hidden max-h-[200px] flex-wrap flex gap-2 p-4 mt-2">
-					<div v-for="w in display_words" :key="w.id" class="cursor-pointer hover:bg-gray-600 transition text-white text-xs p-2 px-4 bg-gray-500 rounded-md" :class="{ 'bg-red-500 hover:bg-red-600': w.isClicked }" @click="event_change('word_trends', w)">{{ w.word }}</div>
+					<div v-for="w in words" :key="w.id" class="cursor-pointer hover:bg-gray-600 transition text-white text-xs p-2 px-4 bg-gray-500 rounded-md" :class="{ 'bg-red-500 hover:bg-red-600': w.isClicked, hidden: !w.isSearched }" @click="event_change('word_trends', w)">{{ w.word }}</div>
 				</div>
 				<div class="w-full flex justify-start items-center mt-3">
 					<p class="mr-4 text-sm font-semibold">Top 5 Trending Keyphrases:</p>
@@ -72,7 +72,7 @@ import Loader from "./components/loader.vue";
 export default {
 	data() {
 		return {
-			isLoading: true,
+			isLoading: false,
 			search: null,
 			sentiment: {
 				distribution: {
@@ -82,56 +82,30 @@ export default {
 			},
 			highest_count: 10,
 			words: [
-				{ word: "package", isClicked: false, count: 10 },
-				{ word: "asdas", isClicked: false, count: 8 },
-				{ word: "vsdvs", isClicked: false, count: 5 },
-				{ word: "dsfwe", isClicked: false, count: 3 },
-				{ word: "qr12312312", isClicked: false, count: 2 },
-				{ word: "dsasdas", isClicked: false, count: 2 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-			],
-			display_words: [
-				{ word: "package", isClicked: false, count: 10 },
-				{ word: "asdas", isClicked: false, count: 8 },
-				{ word: "vsdvs", isClicked: false, count: 5 },
-				{ word: "dsfwe", isClicked: false, count: 3 },
-				{ word: "qr12312312", isClicked: false, count: 2 },
-				{ word: "dsasdas", isClicked: false, count: 2 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
-				{ word: "qweqqweq", isClicked: false, count: 1 },
+				{ word: "package", isClicked: false, isSearched: true, count: 10 },
+				{ word: "my", isClicked: false, isSearched: true, count: 8 },
+				{ word: "vsdvs", isClicked: false, isSearched: true, count: 5 },
+				{ word: "dsfwe", isClicked: false, isSearched: true, count: 3 },
+				{ word: "qr12312312", isClicked: false, isSearched: true, count: 2 },
+				{ word: "dsasdas", isClicked: false, isSearched: true, count: 2 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
+				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
 			],
 			conversations: [
 				{ from: "agent", content_type: "text", content: "hello!", date: "15/03/2023", time: "09:48:00", sentiment: "Positive", confidence: 0.97 },
@@ -165,10 +139,9 @@ export default {
 					let text = conv.getElementsByTagName("p")[0].innerHTML;
 					if (re.test(text)) {
 						if (!e.isClicked) {
-							conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(e.word, "<span class='highlight'>" + e.word + "</span>");
+							conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(e.word, '<span class="highlight">' + e.word + "</span>");
 						} else {
-							console.log("Unclicked");
-							// conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace("<span class='highlight'>", "").replace("</span>", "");
+							conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace('<span class="highlight">' + e.word + "</span>", e.word);
 						}
 					}
 				}
@@ -179,9 +152,8 @@ export default {
 		searchWords(word) {
 			if (word) {
 				const re = new RegExp(word, "i");
-				let result = this.words.filter((node) => re.test(node.word));
-				this.display_words = result;
-			} else this.display_words = this.words;
+				this.words.forEach((node) => (node.isSearched = re.test(node.word)));
+			} else this.words.forEach((node) => (node.isSearched = true));
 		},
 	},
 	components: {
