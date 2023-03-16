@@ -39,9 +39,9 @@
 						<div v-if="c.from === 'agent'" class="flex justify-end flex-wrap">
 							<div v-if="c.content_type === 'text'" class="conv tooltip break-words shadow-md text-white font-semibold rounded-lg p-4 py-3 transition bg-orange-400 cursor-pointer hover:bg-orange-500 text-left float-right max-w-[80%]">
 								<p>{{ c.content }}</p>
-								<span class="tooltiptext-l bg-gray-800/50 text-white"
+								<span class="tooltiptext-l bg-gray-800/80 text-white"
 									><p>{{ c.sentiment }}</p>
-									<p>Confidence: {{ c.confidence }}</p></span
+									<p>Confidence: {{ c.confidence * 100 }}%</p></span
 								>
 							</div>
 							<div class="rounded-full h-8 w-8 mx-2 mr-1 bg-[#393939] p-2"><img src="./assets/agent.png" /></div>
@@ -51,9 +51,9 @@
 							<div class="rounded-full h-8 w-8 mx-2 mr-1 bg-green-400 p-2"><img src="./assets/customer.png" /></div>
 							<div v-if="c.content_type === 'text'" class="conv tooltip break-words shadow-md text-gray-800 font-semibold rounded-lg p-4 py-3 transition bg-green-300 cursor-pointer hover:bg-green-400 text-left float-right max-w-[80%]">
 								<p>{{ c.content }}</p>
-								<span class="tooltiptext-r bg-gray-800/50 text-white"
+								<span class="tooltiptext-r bg-gray-800/80 text-white"
 									><p>{{ c.sentiment }}</p>
-									<p>Confidence: {{ c.confidence }}</p></span
+									<p>Confidence: {{ c.confidence * 100 }}%</p></span
 								>
 							</div>
 							<div class="ml-11 mt-0.5 text-left w-full text-[11px] font-light">{{ c.time }}</div>
@@ -63,11 +63,16 @@
 			</div>
 		</div>
 	</main>
+
+	<loader class="loader" v-if="isLoading"></loader>
 </template>
 <script>
+import Loader from "./components/loader.vue";
+
 export default {
 	data() {
 		return {
+			isLoading: true,
 			search: null,
 			sentiment: {
 				distribution: {
@@ -178,6 +183,9 @@ export default {
 				this.display_words = result;
 			} else this.display_words = this.words;
 		},
+	},
+	components: {
+		Loader,
 	},
 };
 </script>
