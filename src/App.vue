@@ -10,8 +10,22 @@
 			<div class="max-h-[600px] p-2 px-4 pb-4 bg-white text-gray-500 overflow-y-auto">
 				<div class="w-full flex justify-start text-sm font-semibold">Sentiment Distribution:</div>
 				<div class="w-full h-6 mt-2 flex gap-2 px-2">
-					<div class="bg-red-500 rounded-lg text-white flex items-center justify-center" :style="'width:' + sentiment.distribution.neg + '%;'">{{ sentiment.distribution.neg }}%</div>
-					<div class="bg-green-500 rounded-lg text-white flex items-center justify-center" :style="'width:' + sentiment.distribution.pos + '%;'">{{ sentiment.distribution.pos }}%</div>
+					<div
+						class="bg-red-500 hover:bg-red-400 rounded-lg text-white flex items-center justify-center cursor-pointer"
+						:style="'width:' + sentiment.distribution.neg + '%;'"
+						:class="{ 'bg-red-500 hover:bg-red-400': sentiment.distribution.isNegClicked }"
+						@click="event_change('Negative', sentiment.distribution)"
+					>
+						{{ sentiment.distribution.neg }}%
+					</div>
+					<div
+						class="bg-green-500 hover:bg-green-400 rounded-lg text-white flex items-center justify-center cursor-pointer"
+						:style="'width:' + sentiment.distribution.pos + '%;'"
+						:class="{ 'bg-green-500 hover:bg-green-400': sentiment.distribution.isPosClicked }"
+						@click="event_change('Positive', sentiment.distribution)"
+					>
+						{{ sentiment.distribution.pos }}%
+					</div>
 				</div>
 				<div class="w-full flex justify-start items-center mt-4 flex-row">
 					<p class="mr-4 text-sm font-semibold">Word Trends:</p>
@@ -45,7 +59,11 @@
 				<div class="p-2 px-1 h-full text-xs overflow-y-auto">
 					<div v-for="c in conversations" :key="c.id" class="my-1">
 						<div v-if="c.from === 'agent'" class="flex justify-end flex-wrap">
-							<div v-if="c.content_type === 'text'" class="conv tooltip break-words shadow-md text-white font-semibold rounded-lg p-4 py-3 transition bg-orange-400 cursor-pointer hover:bg-orange-500 text-left float-right max-w-[80%]">
+							<div
+								v-if="c.content_type === 'text'"
+								class="conv tooltip break-words shadow-md text-white font-semibold rounded-lg p-4 py-3 transition bg-orange-400 cursor-pointer hover:bg-orange-500 text-left float-right max-w-[80%]"
+								:class="[{ 'border-positive': sentiment.distribution.isPosClicked && c.sentiment === 'Positive' }, { 'border-negative': sentiment.distribution.isNegClicked && c.sentiment === 'Negative' }]"
+							>
 								<p>{{ c.content }}</p>
 								<span class="tooltiptext-l bg-gray-800/80 text-white"
 									><p>{{ c.sentiment }}</p>
@@ -57,7 +75,11 @@
 						</div>
 						<div v-if="c.from === 'client'" class="flex justify-start flex-wrap">
 							<div class="rounded-full h-8 w-8 mx-2 bg-green-400 p-2 mt-1"><img src="./assets/customer.png" /></div>
-							<div v-if="c.content_type === 'text'" class="conv tooltip break-words shadow-md text-gray-800 font-semibold rounded-lg p-4 py-3 transition bg-green-300 cursor-pointer hover:bg-green-400 text-left float-right max-w-[80%]">
+							<div
+								v-if="c.content_type === 'text'"
+								class="conv tooltip break-words shadow-md text-gray-800 font-semibold rounded-lg p-4 py-3 transition bg-green-300 cursor-pointer hover:bg-green-400 text-left float-right max-w-[80%]"
+								:class="[{ 'border-positive': sentiment.distribution.isPosClicked && c.sentiment === 'Positive' }, { 'border-negative': sentiment.distribution.isNegClicked && c.sentiment === 'Negative' }]"
+							>
 								<p>{{ c.content }}</p>
 								<span class="tooltiptext-r bg-gray-800/80 text-white"
 									><p>{{ c.sentiment }}</p>
@@ -110,6 +132,12 @@ export default {
 
 				e.isClicked = !e.isClicked;
 			}
+			if (event_name === "Positive") {
+				e.isPosClicked = !e.isPosClicked;
+			}
+			if (event_name === "Negative") {
+				e.isNegClicked = !e.isNegClicked;
+			}
 		},
 		searchWords(word) {
 			if (word) {
@@ -123,22 +151,11 @@ export default {
 	},
 	async created() {
 		var getData = null;
-		await fetch("http://127.0.0.1:8000/stt/test", {
+		await fetch("http://193.168.10.212:8000/stt/test", {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",
-				"Access-Control-Allow-Origin": "http://127.0.0.1:8000",
-				"Access-Control-Allow-Methods": "GET",
-
-				// like application/json or text/xml
 			},
-			// body: {
-			// 	// Example: Update JSON file with
-			// 	//          local data properties
-			// 	// postTitle: this.title,
-			// 	// postAuthor: this.author,
-			// 	// etc.
-			// },
 		})
 			.then((Response) => Response.json())
 			.then(function (data) {
@@ -159,6 +176,12 @@ body {
 	user-select: none; /* Standard syntax */
 }
 
+.border-positive {
+	border: solid 3px #22c55e;
+}
+.border-negative {
+	border: solid 3px #ef4444;
+}
 .highlight-s,
 .highlight {
 	color: #fff;
