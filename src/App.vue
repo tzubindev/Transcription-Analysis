@@ -18,7 +18,15 @@
 					<input type="text" class="text-xs p-1 grow bg-transparent border-gray-300 border-b-2 focus:outline-none" v-model="search" @input="searchWords(search)" placeholder="Search..." />
 				</div>
 				<div class="w-full overflow-y-auto overflow-x-hidden max-h-[200px] flex-wrap flex gap-2 p-4 mt-2">
-					<div v-for="w in words" :key="w.id" class="cursor-pointer hover:bg-gray-600 transition text-white text-xs p-2 px-4 bg-gray-500 rounded-md" :class="{ 'bg-red-500 hover:bg-red-600': w.isClicked, hidden: !w.isSearched }" @click="event_change('word_trends', w)">{{ w.word }}</div>
+					<div
+						v-for="w in words"
+						:key="w.id"
+						class="cursor-pointer hover:bg-gray-600 transition text-white text-xs p-2 px-4 bg-gray-500 rounded-md"
+						:class="{ 'bg-blue-500 hover:bg-blue-600': w.isClicked && !w.isSensitive, 'bg-red-500 hover:bg-red-600': w.isClicked && w.isSensitive, hidden: !w.isSearched }"
+						@click="event_change('word_trends', w)"
+					>
+						{{ w.word }}
+					</div>
 				</div>
 				<div class="w-full flex justify-start items-center mt-3">
 					<p class="mr-4 text-sm font-semibold">Top 5 Trending Keyphrases:</p>
@@ -74,59 +82,10 @@ export default {
 		return {
 			isLoading: false,
 			search: null,
-			sentiment: {
-				distribution: {
-					pos: 10,
-					neg: 90,
-				},
-			},
-			highest_count: 10,
-			words: [
-				{ word: "package", isClicked: false, isSearched: true, count: 10 },
-				{ word: "my", isClicked: false, isSearched: true, count: 8 },
-				{ word: "vsdvs", isClicked: false, isSearched: true, count: 5 },
-				{ word: "dsfwe", isClicked: false, isSearched: true, count: 3 },
-				{ word: "qr12312312", isClicked: false, isSearched: true, count: 2 },
-				{ word: "dsasdas", isClicked: false, isSearched: true, count: 2 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-				{ word: "qweqqweq", isClicked: false, isSearched: true, count: 1 },
-			],
-			conversations: [
-				{ from: "agent", content_type: "text", content: "hello!", date: "15/03/2023", time: "09:48:00", sentiment: "Positive", confidence: 0.97 },
-				{ from: "agent", content_type: "text", content: "How may I help you?", date: "15/03/2023", time: "09:48:00", sentiment: "Positive", confidence: 0.87 },
-				{ from: "client", content_type: "text", content: "May I check for the expected arrival date of my package?", date: "15/03/2023", time: "09:48:00", sentiment: "Positive", confidence: 0.47 },
-				{ from: "agent", content_type: "text", content: "Sure! May I have your package id, please.", date: "15/03/2023", time: "09:48:00", sentiment: "Positive", confidence: 0.17 },
-				{ from: "client", content_type: "text", content: "It's AOS1239949123.", date: "15/03/2023", time: "09:48:00", sentiment: "Positive", confidence: 0.27 },
-				{ from: "agent", content_type: "text", content: "Got it! Hold on for a minute, please.", date: "15/03/2023", time: "09:48:00", sentiment: "Positive", confidence: 0.33 },
-				{ from: "agent", content_type: "text", content: "It's tomorrow, which is 16/03/2023. Any other enquiries?", date: "15/03/2023", time: "09:48:00", sentiment: "Positive", confidence: 0.65 },
-				{ from: "client", content_type: "text", content: "No thanks.", date: "15/03/2023", time: "09:48:00", sentiment: "Positive", confidence: 0.34 },
-				{ from: "agent", content_type: "text", content: "Happy to help you.", date: "15/03/2023", time: "09:48:00", sentiment: "Positive", confidence: 0.24 },
-				{
-					from: "agent",
-					content_type: "text",
-					content: "Happy to help you.asdnkoooooookkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkdasomdkoqmdoqwkodq mkdoqwdmkqow dmkqdo mqkwod qmkdoq mdkqod mqkoq wkdkoqw mdkqo",
-					date: "15/03/2023",
-					time: "09:48:00",
-					sentiment: "Positive",
-					confidence: 0.11,
-				},
-			],
+			sentiment: null,
+			highest_count: null,
+			words: null,
+			conversations: null,
 		};
 	},
 	methods: {
@@ -139,9 +98,12 @@ export default {
 					let text = conv.getElementsByTagName("p")[0].innerHTML;
 					if (re.test(text)) {
 						if (!e.isClicked) {
-							conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(e.word, '<span class="highlight">' + e.word + "</span>");
+							if (!e.isSensitive) conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(e.word, '<span class="highlight">' + e.word + "</span>");
+							else conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(e.word, '<span class="highlight-s">' + e.word + "</span>");
 						} else {
-							conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace('<span class="highlight">' + e.word + "</span>", e.word);
+							let target = "highlight";
+							if (e.isSensitive) target = "highlight-s";
+							conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(`<span class="${target}">` + e.word + "</span>", e.word);
 						}
 					}
 				}
@@ -159,6 +121,34 @@ export default {
 	components: {
 		Loader,
 	},
+	async created() {
+		var getData = null;
+		await fetch("http://127.0.0.1:8000/stt/test", {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": "http://127.0.0.1:8000",
+				"Access-Control-Allow-Methods": "GET",
+
+				// like application/json or text/xml
+			},
+			// body: {
+			// 	// Example: Update JSON file with
+			// 	//          local data properties
+			// 	// postTitle: this.title,
+			// 	// postAuthor: this.author,
+			// 	// etc.
+			// },
+		})
+			.then((Response) => Response.json())
+			.then(function (data) {
+				getData = data;
+			});
+		this.sentiment = getData.sentiment;
+		this.highest_count = getData.highest_count;
+		this.words = getData.words;
+		this.conversations = getData.conversations;
+	},
 };
 </script>
 
@@ -169,11 +159,18 @@ body {
 	user-select: none; /* Standard syntax */
 }
 
+.highlight-s,
 .highlight {
-	background-color: #f73131;
 	color: #fff;
-	padding: 5px;
-	border-radius: 8px;
+	padding: 0.25rem 0.5rem;
+	border-radius: 10px;
+}
+.highlight {
+	background-color: rgb(59 130 246);
+}
+
+.highlight-s {
+	background-color: rgb(239 68 68);
 }
 
 .tooltip {
@@ -217,14 +214,13 @@ body {
 
 /* Track */
 ::-webkit-scrollbar-track {
-	background: #f1f1f1;
-	border-radius: 4px;
+	background: transparent;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-	background: #888;
-	border: solid 2px #f1f1f1;
+	background: #8d8d8d;
+	border: solid 2px rgba(255, 255, 255, 0.9);
 	border-radius: 4px;
 }
 
