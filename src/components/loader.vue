@@ -1,6 +1,6 @@
 <template>
-	<div class="screen">
-		<div class="title text-orange-400 font-extrabold text-3xl">Loading Data</div>
+	<div class="screen bg-orange-400">
+		<div class="title text-white font-extrabold text-3xl">Loading Data</div>
 		<div class="preloader" :style="cssVars">
 			<span class="rot-1"></span>
 			<span class="rot-2"></span>
@@ -16,7 +16,7 @@ export default {
 	props: {
 		color: {
 			type: String,
-			default: "#fb923c",
+			default: "#fff",
 		},
 		scale: {
 			type: Number,
@@ -50,7 +50,6 @@ export default {
 	position: fixed;
 	transform: translate(-50%, -50%);
 	border-radius: 20px;
-	background-color: rgba(0, 0, 0, 0.74);
 }
 
 .preloader {
