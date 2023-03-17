@@ -9,6 +9,7 @@
 			<div class="col-span-3 lg:col-span-2">
 				<h1 class="bg-white py-2 font-bold text-gray-500 border-b-2 border-gray-300 rounded-t-md">Transcription Analysis</h1>
 				<div class="block w-full max-h-[600px] sm:grid sm:grid-cols-2 shadow-md">
+					<!-- Words Info -->
 					<div class="max-h-[600px] p-2 px-4 pb-4 bg-white text-gray-500 overflow-y-auto">
 						<div class="w-full flex justify-start text-sm font-semibold">Sentiment Distribution:</div>
 						<div class="w-full h-6 mt-2 flex gap-1 px-2" v-if="sentiment">
@@ -100,23 +101,42 @@
 							</div>
 						</div>
 					</div>
+					<!-- Conversations -->
 					<div class="mt-4 sm:mt-0 max-h-[600px] bg-[#f2f0f0]">
 						<div class="p-2 px-1 h-full text-xs overflow-y-auto overflow-x-hidden">
-							<div v-for="c in conversations" :key="c.id" class="my-1">
-								<div v-if="c.from === 'agent'" class="flex justify-end flex-wrap">
-									<div
-										v-if="c.content_type === 'text'"
-										class="conv tooltip break-words shadow-md text-white font-semibold rounded-lg p-4 py-3 transition bg-orange-400 cursor-pointer hover:bg-orange-500 text-left float-right max-w-[80%]"
-										:class="[{ 'border-positive': isPosClicked && c.sentiment === 'Positive' }, { 'border-negative': isNegClicked && c.sentiment === 'Negative' }]"
-										@click="event_change('add_comment', c)"
-									>
-										<p class="leading-">{{ c.content }}</p>
-										<span class="tooltiptext-l bg-gray-800/80 text-white"
-											><p>{{ c.sentiment }}</p>
-											<p>Confidence: {{ c.confidence * 100 }}%</p></span
+							<div class="flex relative mt-2 border-b-2 border-b-gray-300 mb-4 justify-center ml-3 mr-1">
+								<label class="absolute -mt-2 bg-[#f2f0f0] px-2 text-gray-500">{{ date }}</label>
+							</div>
+							<div v-for="c in conversations" :key="c.id" class="my-3">
+								<div>
+									<div class="flex justify-end flex-wrap" v-if="c.from === 'agent'">
+										<div
+											class="conv tooltip break-words shadow-md text-white font-semibold rounded-lg p-4 py-3 transition bg-orange-400 cursor-pointer hover:bg-orange-500 text-left float-right max-w-[80%]"
+											:class="[{ 'border-positive': isPosClicked && c.sentiment === 'Positive' }, { 'border-negative': isNegClicked && c.sentiment === 'Negative' }]"
+											@click="event_change('add_comment', c)"
 										>
+											<p class="leading-">{{ c.content }}</p>
+											<span class="tooltiptext-l bg-gray-800/80 text-white"
+												><p>{{ c.sentiment }}</p>
+												<p>Confidence: {{ c.confidence * 100 }}%</p></span
+											>
+										</div>
+										<div class="rounded-full h-8 w-8 mx-2 mr-0 mt-1 bg-[#393939] p-2"><img src="./assets/agent.png" /></div>
 									</div>
-									<div class="rounded-full h-8 w-8 mx-2 mr-0 mt-1 bg-[#393939] p-2"><img src="./assets/agent.png" /></div>
+									<div class="flex justify-start flex-wrap" v-if="c.from === 'client'">
+										<div class="rounded-full h-8 w-8 mx-2 bg-green-400 p-2 mt-1"><img src="./assets/customer.png" /></div>
+										<div
+											class="conv tooltip break-words shadow-md text-gray-800 font-semibold rounded-lg p-4 py-3 transition bg-green-300 cursor-pointer hover:bg-green-400 text-left float-right max-w-[80%]"
+											:class="[{ 'border-positive': isPosClicked && c.sentiment === 'Positive' }, { 'border-negative': isNegClicked && c.sentiment === 'Negative' }]"
+											@click="event_change('add_comment', c)"
+										>
+											<p class="leading-5">{{ c.content }}</p>
+											<span class="tooltiptext-r bg-gray-800/80 text-white"
+												><p>{{ c.sentiment }}</p>
+												<p>Confidence: {{ c.confidence * 100 }}%</p></span
+											>
+										</div>
+									</div>
 									<div class="w-full bg-white my-2 mx-2 p-4 shadow-lg rounded-2xl" v-if="c.isClicked">
 										<h1 class="text-left font-bold mb-2">Add Comment</h1>
 										<textarea id="addcomment" class="w-[98%] min-h-[50px] h-max-[100px] mb-2 p-2 bg-gray-100 outline outline-gray-800 outline-2 rounded-sm"></textarea>
@@ -124,36 +144,13 @@
 											<button type="button" class="rounded-md bg-[#393939] py-2 px-2.5 text-xs font-semibold text-gray-100 shadow-sm hover:bg-[#222222] transition" @click="add_comment(c)">Add</button>
 										</div>
 									</div>
-									<div class="mr-10 mt-0.5 text-right w-full text-[11px] font-light">{{ c.time }}</div>
-								</div>
-								<div v-if="c.from === 'client'" class="flex justify-start flex-wrap">
-									<div class="rounded-full h-8 w-8 mx-2 bg-green-400 p-2 mt-1"><img src="./assets/customer.png" /></div>
-									<div
-										v-if="c.content_type === 'text'"
-										class="conv tooltip break-words shadow-md text-gray-800 font-semibold rounded-lg p-4 py-3 transition bg-green-300 cursor-pointer hover:bg-green-400 text-left float-right max-w-[80%]"
-										:class="[{ 'border-positive': isPosClicked && c.sentiment === 'Positive' }, { 'border-negative': isNegClicked && c.sentiment === 'Negative' }]"
-										@click="event_change('add_comment', c)"
-									>
-										<p class="leading-5">{{ c.content }}</p>
-										<span class="tooltiptext-r bg-gray-800/80 text-white"
-											><p>{{ c.sentiment }}</p>
-											<p>Confidence: {{ c.confidence * 100 }}%</p></span
-										>
-									</div>
-									<div class="w-full bg-white my-2 mx-2 p-4 shadow-lg rounded-2xl" v-if="c.isClicked">
-										<h1 class="text-left font-bold mb-2">Add Comment</h1>
-										<textarea id="addcomment" class="w-[98%] min-h-[50px] h-max-[100px] mb-2 p-2 bg-gray-100 outline outline-gray-800 outline-2 rounded-sm"></textarea>
-										<div class="w-full flex justify-end">
-											<button type="button" class="rounded-md bg-[#393939] py-2 px-2.5 text-xs font-semibold text-gray-100 shadow-sm hover:bg-[#222222] transition" @click="add_comment(c)">Add</button>
-										</div>
-									</div>
-									<div class="ml-12 mt-0.5 text-left w-full text-[11px] font-light">{{ c.time }}</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
+			<!-- Comment Panel -->
 			<div class="hidden sm:block col-span-3 lg:col-span-1">
 				<h1 class="bg-white py-2 font-bold text-gray-500 border-b-2 border-gray-300 rounded-t-md">Comment</h1>
 				<div class="block w-full max-h-[600px] shadow-md">
@@ -188,6 +185,8 @@ export default {
 			isCommentEditShowable: false,
 			isNegClicked: false,
 			isPosClicked: false,
+			date: null,
+			isDateInitialised: false,
 			sentiment: null,
 			highest_count: null,
 			words: null,
@@ -195,6 +194,11 @@ export default {
 		};
 	},
 	methods: {
+		placeDate(date) {
+			if (this.isDateInitialised) return false;
+			this.isDateInitialised = !this.isDateInitialised;
+			return false;
+		},
 		waitForEle(id) {
 			return new Promise((resolve) => {
 				if (document.querySelector(id)) {
@@ -222,13 +226,14 @@ export default {
 				for (let conv of conversations) {
 					let text = conv.getElementsByTagName("p")[0].innerHTML;
 					if (re.test(text)) {
+						let regEx = new RegExp(e.word, "ig");
+						const matchedCases = [...conv.getElementsByTagName("p")[0].innerHTML.matchAll(regEx)];
+						let target = "highlight";
+						if (e.isSensitive) target = "highlight-s";
 						if (!e.isClicked) {
-							if (!e.isSensitive) conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(e.word, '<span class="highlight">' + e.word + "</span>");
-							else conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(e.word, '<span class="highlight-s">' + e.word + "</span>");
+							for (let i = 0; i < matchedCases.length; i++) conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(matchedCases[i][0], `<span class="${target}">` + matchedCases[i][0] + "</span>");
 						} else {
-							let target = "highlight";
-							if (e.isSensitive) target = "highlight-s";
-							conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(`<span class="${target}">` + e.word + "</span>", e.word);
+							for (let i = 0; i < matchedCases.length; i++) conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(`<span class="${target}">` + matchedCases[i][0] + "</span>", matchedCases[i][0]);
 						}
 					}
 				}
@@ -305,6 +310,7 @@ export default {
 			this.highest_count = getData.highest_count;
 			this.words = getData.words;
 			this.conversations = getData.conversations;
+			this.date = getData.date;
 			this.isLoading = false;
 		};
 		fetchData();
