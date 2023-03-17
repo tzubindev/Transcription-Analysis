@@ -137,7 +137,7 @@
 											>
 										</div>
 									</div>
-									<div class="w-full bg-white my-2 mx-2 p-4 shadow-lg rounded-2xl" v-if="c.isClicked">
+									<div class="bg-white my-2 mx-3 p-4 shadow-lg rounded-2xl" v-if="c.isClicked">
 										<h1 class="text-left font-bold mb-2">Add Comment</h1>
 										<textarea id="addcomment" class="w-[98%] min-h-[50px] h-max-[100px] mb-2 p-2 bg-gray-100 outline outline-gray-800 outline-2 rounded-sm"></textarea>
 										<div class="w-full flex justify-end">
@@ -272,21 +272,22 @@ export default {
 		async postData(e) {
 			this.isLoading = true;
 			var getData = null;
+			const data = {
+				comment: e,
+			};
 			await fetch("http://127.0.0.1:8000/stt/test", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: {
-					comment: e,
-				},
+				body: JSON.stringify(data),
 			})
 				.then((Response) => Response.json())
 				.then(function (data) {
 					getData = data;
 				});
-			console.log("POST", getData);
 			this.isLoading = false;
+			alert(getData.response);
 		},
 	},
 	components: {
