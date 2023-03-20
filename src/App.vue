@@ -151,14 +151,16 @@
 										</div>
 									</div>
 									<div class="bg-white my-2 mx-3 p-4 shadow-lg rounded-2xl" v-if="c.isClicked">
-										<div class="h-full p-1 px-2 mt-2 rounded-lg mr-2 text-center bg-[#393939] text-white cursor-pointer hover:bg-[#5c5c5c] transition" v-if="c.isClicked">Convert Conversation Target [{{ c.from === "client" ? "Agent" : "Client" }}]</div>
+										<div class="h-full p-1 px-2 mt-2 rounded-lg mr-2 text-center bg-[#393939] text-white cursor-pointer hover:bg-[#5c5c5c] transition" v-if="c.isClicked" @click="event_change('convert_target', request_id, c.conversation_id, c.from)">
+											Convert Conversation Target [{{ c.from === "client" ? "Agent" : "Client" }}]
+										</div>
 										<div v-if="c.comment !== ''" class="sm:hidden block">
 											<div class="relative mb-4 mt-6">
 												<label for="comment" class="absolute -top-2 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900">Modify Your Comment Here</label>
 												<textarea name="comment" class="comment block w-full rounded-md border-0 p-4 min-h-[200px] bg-white text-gray-900 shadow-sm outline outline-2 outline-black placeholder:text-gray-400 sm:text-sm sm:leading-6" />
 											</div>
 											<div class="w-full flex justify-end">
-												<button type="button" class="w-full rounded-md bg-[#393939] py-1 font-semibold text-white shadow-sm hover:bg-[#222222] transition">Save Comment Changes</button>
+												<button type="button" class="w-full rounded-md bg-[#393939] py-1 font-semibold text-white shadow-sm hover:bg-[#222222] transition" @click="event_change('update_comment')">Save Comment Changes</button>
 											</div>
 										</div>
 										<div v-if="c.comment === ''">
@@ -224,9 +226,7 @@ export default {
 			isNegClicked: false,
 			isPosClicked: false,
 			date: null,
-			isDateInitialised: false,
 			comment_wait_to_post: null,
-			current_comment: null,
 			request_ids: ["a_b_15/03/2023_1", "c_d_17/03/2023_2"],
 
 			// Get Data from API
@@ -258,9 +258,9 @@ export default {
 				});
 			});
 		},
-		async event_change(event_name, e) {
+		async event_change(event_name, param_1 = null, param_2 = null, param_3 = null) {
 			if (event_name === "word_trends") {
-				const re = new RegExp(e.word);
+				const re = new RegExp(param_1.word);
 
 				var conversations = document.getElementsByClassName("conv");
 				for (let conv of conversations) {
@@ -278,7 +278,7 @@ export default {
 					}
 				}
 
-				e.isClicked = !e.isClicked;
+				param_1.isClicked = !param_1.isClicked;
 			}
 			if (event_name === "click_sentiment_positive") {
 				this.isPosClicked = !this.isPosClicked;
@@ -287,13 +287,13 @@ export default {
 				this.isNegClicked = !this.isNegClicked;
 			}
 			if (event_name === "click_add_comment") {
-				if (!e.isClicked) {
+				if (!param_1.isClicked) {
 					this.conversations.forEach((node) => (node.isClicked = false));
-					e.isClicked = !e.isClicked;
+					param_1.isClicked = !param_1.isClicked;
 					this.isCommentEditShowable = true;
-					if (await this.waitForEle(".comment")) Array.from(document.getElementsByClassName("comment")).map((node) => (node.value = e.comment));
+					if (await this.waitForEle(".comment")) Array.from(document.getElementsByClassName("comment")).map((node) => (node.value = param_1.comment));
 				} else {
-					e.isClicked = !e.isClicked;
+					param_1.isClicked = !param_1.isClicked;
 					this.isCommentEditShowable = false;
 				}
 			}
@@ -303,10 +303,23 @@ export default {
 			if (event_name === "add_comment") {
 				let comment = document.getElementById("addcomment").value;
 				if (comment) {
-					this.postData(event_name, e);
+					this.postData(event_name, param_1);
 				} else {
 					this.$notify({ title: "Please write something to add a comment", position: "bottom left", type: "error", duration: 1300 });
 				}
+			}
+			if (event_name === "update_comment") {
+				// param_1 = request_id
+				// param_2 = conversation_id
+				this.postData(event_name, param_1, param_2);
+			}
+
+			if (event_name === "convert_target") {
+				// param_1 = request_id
+				// param_2 = conversation_id
+				// param_3 = from
+				param_3 = param_3 === "client" ? "agent" : "client";
+				this.postData(event_name, param_1, param_2, param_3);
 			}
 		},
 		searchWords(word) {
@@ -315,7 +328,7 @@ export default {
 				this.words.forEach((node) => (node.isSearched = re.test(node.word)));
 			} else this.words.forEach((node) => (node.isSearched = true));
 		},
-		async postData(type, param_1) {
+		async postData(type, param_1 = null, param_2 = null) {
 			this.isProcessing = true;
 			var data = null;
 			if (type === "add_comment") {
@@ -353,8 +366,20 @@ export default {
 				// 	});
 			}
 			if (type === "update_comment") {
+				this.$notify({
+					title: "Successfully Saved.",
+					position: "bottom left",
+					type: "success",
+					duration: 1300,
+				});
 			}
 			if (type === "convert_target") {
+				this.$notify({
+					title: "Successfully Converted.",
+					position: "bottom left",
+					type: "success",
+					duration: 1300,
+				});
 			}
 			this.isProcessing = false;
 		},
