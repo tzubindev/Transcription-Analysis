@@ -1,6 +1,6 @@
 <template>
 	<div class="screen bg-orange-400">
-		<div class="title text-white font-extrabold text-3xl">Loading Data</div>
+		<div class="title text-white font-extrabold text-3xl">{{ title }}</div>
 		<div class="preloader" :style="cssVars">
 			<span class="rot-1"></span>
 			<span class="rot-2"></span>
@@ -14,6 +14,10 @@
 export default {
 	name: "Loader",
 	props: {
+		title: {
+			type: String,
+			default: "Title",
+		},
 		color: {
 			type: String,
 			default: "#fff",

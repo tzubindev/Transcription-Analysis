@@ -35,3 +35,8 @@
 		background-color: #f9f9f9;
 	}
 }
+
+.swal2-popup {
+	font-size: 10px !important;
+	font-family: Georgia, serif;
+}
