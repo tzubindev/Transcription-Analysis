@@ -167,7 +167,7 @@
 											<h1 class="text-left font-bold mb-2 mt-2">Add Comment</h1>
 											<textarea id="addcomment" class="w-[98%] min-h-[50px] h-max-[100px] mb-2 p-2 bg-gray-100 outline outline-gray-800 outline-2 rounded-sm" v-model="comment_wait_to_post"></textarea>
 											<div class="w-full flex justify-end">
-												<button type="button" class="rounded-md bg-[#393939] py-2 px-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#222222] transition" @click="event_change('add_comment', request_id)">Add</button>
+												<button type="button" class="rounded-md bg-[#393939] py-2 px-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#222222] transition" @click="event_change('add_comment', request_id, c.conversation_id)">Add</button>
 											</div>
 										</div>
 									</div>
@@ -200,7 +200,7 @@
 								<button type="button" class="rounded-md bg-[#393939] py-2.5 px-3.5 text-sm font-semibold text-white shadow-sm hover:bg-[#222222] transition">Save Comment Changes</button>
 							</div>
 						</div>
-						<div class="max-h-[300px] p-8 px-6 bg-white text-gray-500 overflow-y-auto rounded-b-md" v-if="!isCommentEditShowable">
+						<div id="comment_description" class="max-h-[300px] p-8 px-6 bg-white text-gray-500 overflow-y-auto rounded-b-md" v-if="!isCommentEditShowable">
 							<div>No conversation is selected.</div>
 						</div>
 					</div>
@@ -266,11 +266,11 @@ export default {
 				for (let conv of conversations) {
 					let text = conv.getElementsByTagName("p")[0].innerHTML;
 					if (re.test(text)) {
-						let regEx = new RegExp(e.word, "ig");
+						let regEx = new RegExp(param_1.word, "ig");
 						const matchedCases = [...conv.getElementsByTagName("p")[0].innerHTML.matchAll(regEx)];
 						let target = "highlight";
-						if (e.isSensitive) target = "highlight-s";
-						if (!e.isClicked) {
+						if (param_1.isSensitive) target = "highlight-s";
+						if (!param_1.isClicked) {
 							for (let i = 0; i < matchedCases.length; i++) conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(matchedCases[i][0], `<span class="${target}">` + matchedCases[i][0] + "</span>");
 						} else {
 							for (let i = 0; i < matchedCases.length; i++) conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(`<span class="${target}">` + matchedCases[i][0] + "</span>", matchedCases[i][0]);
@@ -290,11 +290,13 @@ export default {
 				if (!param_1.isClicked) {
 					this.conversations.forEach((node) => (node.isClicked = false));
 					param_1.isClicked = !param_1.isClicked;
-					this.isCommentEditShowable = true;
+					this.isCommentEditShowable = param_1.comment !== "";
+					if (!this.isCommentEditShowable && param_1.isClicked) document.getElementById("comment_description").childNodes[0].innerHTML = "This conversation has no comment.";
 					if (await this.waitForEle(".comment")) Array.from(document.getElementsByClassName("comment")).map((node) => (node.value = param_1.comment));
 				} else {
 					param_1.isClicked = !param_1.isClicked;
 					this.isCommentEditShowable = false;
+					document.getElementById("comment_description").childNodes[0].innerHTML = "No conversation is selected.";
 				}
 			}
 			if (event_name === "request") {
@@ -303,7 +305,7 @@ export default {
 			if (event_name === "add_comment") {
 				let comment = document.getElementById("addcomment").value;
 				if (comment) {
-					this.postData(event_name, param_1);
+					this.postData(event_name, param_1, param_2);
 				} else {
 					this.$notify({ title: "Please write something to add a comment", position: "bottom left", type: "error", duration: 1300 });
 				}
@@ -335,7 +337,7 @@ export default {
 				data = {
 					comment: this.comment_wait_to_post,
 				};
-				await fetch(`http://127.0.0.1:8000/stt/test/`, {
+				await fetch(`http://127.0.0.1:8000/stt/addComment/${param_1}/${param_2}`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -347,6 +349,8 @@ export default {
 						data = d;
 					});
 				this.comment_wait_to_post = null;
+
+				// NEED VALIDATION HERE
 				this.$notify({
 					title: "Successfully Added.",
 					position: "bottom left",
@@ -381,7 +385,7 @@ export default {
 					duration: 1300,
 				});
 			}
-			this.isProcessing = false;
+			setTimeout(() => (this.isProcessing = false), 800);
 		},
 	},
 	computed: {
