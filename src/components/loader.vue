@@ -73,7 +73,7 @@ export default {
 	width: 8px;
 	border-radius: 12px;
 	animation-name: f_fadeG;
-	animation-duration: 1.2s;
+	animation-duration: 0.4s;
 	animation-iteration-count: infinite;
 	animation-direction: normal;
 }
@@ -81,25 +81,25 @@ export default {
 .rot-1 {
 	left: 0;
 	top: 0;
-	animation-delay: 0.45s;
+	animation-delay: 0.1s;
 }
 
 .rot-2 {
 	left: 15px;
 	top: 0;
-	animation-delay: 0.75s;
+	animation-delay: 0.2;
 }
 
 .rot-3 {
 	left: 15px;
 	top: 15px;
-	animation-delay: 1.05s;
+	animation-delay: 0.3s;
 }
 
 .rot-4 {
 	left: 0;
 	top: 15px;
-	animation-delay: 1.35s;
+	animation-delay: 0.4s;
 }
 
 @keyframes f_fadeG {

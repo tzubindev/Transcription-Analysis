@@ -2,7 +2,7 @@
 
 <template>
 	<header class="w-full h-auto flex justify-start items-center bg-orange-400">
-		<div class="p-4 text-white font-extrabold">Demo</div>
+		<div class="p-4 text-white font-extrabold">Transcription Result Panel</div>
 	</header>
 	<main class="font-sans p-6 py-8">
 		<div class="grid grid-cols-3 gap-4">
@@ -25,7 +25,7 @@
 							<div
 								class="bg-red-500 hover:bg-red-400 rounded-lg text-white flex items-center justify-center cursor-pointer text-xs md:text-sm"
 								:style="'width:' + sentiment.distribution.neg + '%;'"
-								:class="{ 'bg-red-600 hover:bg-red-400': isNegClicked }"
+								:class="{ 'bg-red-800 hover:bg-red-500': isNegClicked }"
 								@click="event_change('click_sentiment_negative', sentiment.distribution)"
 							>
 								{{ sentiment.distribution.neg }}%
@@ -33,7 +33,7 @@
 							<div
 								class="bg-green-500 hover:bg-green-400 rounded-lg text-white flex items-center justify-center cursor-pointer text-xs md:text-sm"
 								:style="'width:' + sentiment.distribution.pos + '%;'"
-								:class="{ 'bg-green-600 hover:bg-green-400': isPosClicked }"
+								:class="{ 'bg-green-800 hover:bg-green-500': isPosClicked }"
 								@click="event_change('click_sentiment_positive', sentiment.distribution)"
 							>
 								{{ sentiment.distribution.pos }}%
@@ -151,20 +151,22 @@
 										</div>
 									</div>
 									<div class="bg-white my-2 mx-3 p-4 shadow-lg rounded-2xl" v-if="c.isClicked">
-										<div class="h-full p-1 px-2 mt-2 rounded-lg mr-2 text-center bg-[#393939] text-white cursor-pointer hover:bg-[#5c5c5c] transition" v-if="c.isClicked" @click="event_change('convert_target', request_id, c.conversation_id, c.from)">
-											Convert Conversation Target [{{ c.from === "client" ? "Agent" : "Client" }}]
+										<div class="flex items-center justify-center h-full p-2 mt-2 rounded-lg mr-2 bg-[#393939] text-white cursor-pointer hover:bg-[#5c5c5c] transition" v-if="c.isClicked" @click="event_change('convert_target', request_id, c.conversation_id, c.from)">
+											Convert Conversation Target To
+											<b class="ml-2 p-1.5 py-0.5 bg-gray-100 text-black rounded-md shadow-md">{{ c.from === "client" ? "Agent" : "Client" }}</b>
 										</div>
-										<div v-if="c.comment !== ''" class="sm:hidden block">
+										<!-- <div class="border-t-2 border-t-stone-300 mt-6" :class="{ block: c.comment === '', hidden: c.comment !== '' }"></div> -->
+										<div v-if="c.comment !== ''" class="sm:hidden block border-t-2 border-t-stone-200 mt-6">
 											<div class="relative mb-4 mt-6">
 												<label for="comment" class="absolute -top-2 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900">Modify Your Comment Here</label>
 												<textarea name="comment" class="comment block w-full rounded-md border-0 p-4 min-h-[200px] bg-white text-gray-900 shadow-sm outline outline-2 outline-black placeholder:text-gray-400 sm:text-sm sm:leading-6" />
 											</div>
 											<div class="w-full flex justify-end">
-												<button type="button" class="w-full rounded-md bg-[#393939] py-1 font-semibold text-white shadow-sm hover:bg-[#222222] transition" @click="event_change('update_comment')">Save Comment Changes</button>
+												<button type="button" class="w-full rounded-md bg-green-500 py-1 font-semibold text-white shadow-sm hover:bg-[#222222] transition" @click="event_change('update_comment')">Save Comment Changes</button>
 											</div>
 										</div>
 										<div v-if="c.comment === ''">
-											<h1 class="text-left font-bold mb-2 mt-2">Add Comment</h1>
+											<h1 class="text-left font-bold mb-2 border-t-2 border-t-stone-200 mt-6 pt-2">Add Comment</h1>
 											<textarea id="addcomment" class="w-[98%] min-h-[50px] h-max-[100px] mb-2 p-2 bg-gray-100 outline outline-gray-800 outline-2 rounded-sm" v-model="comment_wait_to_post"></textarea>
 											<div class="w-full flex justify-end">
 												<button type="button" class="rounded-md bg-[#393939] py-2 px-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#222222] transition" @click="event_change('add_comment', request_id, c.conversation_id)">Add</button>
@@ -227,9 +229,10 @@ export default {
 			isPosClicked: false,
 			date: null,
 			comment_wait_to_post: null,
-			request_ids: ["a_b_15/03/2023_1", "c_d_17/03/2023_2"],
+			request_ids: null,
 
 			// Get Data from API
+			last_request: null,
 			selected_request: null,
 			request_id: null,
 			sentiment: null,
@@ -239,14 +242,14 @@ export default {
 		};
 	},
 	methods: {
-		waitForEle(id) {
+		waitForEle(key) {
 			return new Promise((resolve) => {
-				if (document.querySelector(id)) {
+				if (document.querySelector(key)) {
 					return resolve(true);
 				}
 
 				const observer = new MutationObserver((mutations) => {
-					if (document.querySelector(id)) {
+					if (document.querySelector(key)) {
 						resolve(true);
 						observer.disconnect();
 					}
@@ -296,11 +299,14 @@ export default {
 				} else {
 					param_1.isClicked = !param_1.isClicked;
 					this.isCommentEditShowable = false;
-					document.getElementById("comment_description").childNodes[0].innerHTML = "No conversation is selected.";
+					if (await this.waitForEle("#comment_description")) document.getElementById("comment_description").childNodes[0].innerHTML = "No conversation is selected.";
 				}
 			}
 			if (event_name === "request") {
-				if (this.selected_request) this.fetchData;
+				if (this.last_request !== this.selected_request) {
+					this.last_request = this.selected_request;
+					this.getData("all_data", this.selected_request);
+				}
 			}
 			if (event_name === "add_comment") {
 				let comment = document.getElementById("addcomment").value;
@@ -315,7 +321,6 @@ export default {
 				// param_2 = conversation_id
 				this.postData(event_name, param_1, param_2);
 			}
-
 			if (event_name === "convert_target") {
 				// param_1 = request_id
 				// param_2 = conversation_id
@@ -330,14 +335,14 @@ export default {
 				this.words.forEach((node) => (node.isSearched = re.test(node.word)));
 			} else this.words.forEach((node) => (node.isSearched = true));
 		},
-		async postData(type, param_1 = null, param_2 = null) {
+		async postData(type, param_1 = null, param_2 = null, param_3 = null) {
 			this.isProcessing = true;
 			var data = null;
 			if (type === "add_comment") {
 				data = {
 					comment: this.comment_wait_to_post,
 				};
-				await fetch(`http://127.0.0.1:8000/stt/addComment/${param_1}/${param_2}`, {
+				await fetch(`http://127.0.0.1:8000/stt/updateComment/${param_1}/${param_2}`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -378,6 +383,21 @@ export default {
 				});
 			}
 			if (type === "convert_target") {
+				data = {
+					sender: param_3,
+				};
+				await fetch(`http://127.0.0.1:8000/stt/updateSender/${param_1}/${param_2}`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(data),
+				})
+					.then((Response) => Response.json())
+					.then(function (d) {
+						data = d;
+					});
+
 				this.$notify({
 					title: "Successfully Converted.",
 					position: "bottom left",
@@ -385,31 +405,88 @@ export default {
 					duration: 1300,
 				});
 			}
-			setTimeout(() => (this.isProcessing = false), 800);
+			setTimeout(() => (this.isProcessing = false), 500);
+		},
+		async getData(type, param_1 = null, param_2 = null, param_3 = null) {
+			this.isLoading = true;
+			var data = null;
+
+			if (type === "request_id") {
+				await fetch(`http://127.0.0.1:8000/stt/requests/${param_1}`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				})
+					.then((Response) => Response.json())
+					.then(function (d) {
+						data = d;
+					});
+				this.request_ids = data.request_id;
+			}
+			if (type === "all_data") {
+				var getData = null;
+				await fetch(`http://127.0.0.1:8000/stt/request/${param_1}`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				})
+					.then((Response) => Response.json())
+					.then(function (data) {
+						getData = data;
+					});
+				if (!getData.error) {
+					this.sentiment = getData.sentiment;
+					this.highest_count = getData.highest_count;
+					this.words = getData.words;
+					this.conversations = getData.conversations;
+					this.date = getData.date;
+					this.request_id = getData.request_id;
+				} else {
+					this.$notify({
+						title: getData.error,
+						position: "bottom left",
+						type: "error",
+						duration: 2000,
+					});
+					this.sentiment = null;
+					this.highest_count = null;
+					this.words = null;
+					this.conversations = null;
+					this.date = null;
+					this.request_id = null;
+				}
+			}
+
+			setTimeout(() => (this.isLoading = false), 500);
 		},
 	},
 	computed: {
-		async fetchData() {
-			this.isLoading = true;
-			var getData = null;
-			await fetch("http://127.0.0.1:8000/stt/test", {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-				},
-			})
-				.then((Response) => Response.json())
-				.then(function (data) {
-					getData = data;
-				});
-			this.sentiment = getData.sentiment;
-			this.highest_count = getData.highest_count;
-			this.words = getData.words;
-			this.conversations = getData.conversations;
-			this.date = getData.date;
-			this.request_id = getData.request_id;
-			this.isLoading = false;
-		},
+		// async fetchData() {
+		// 	this.isLoading = true;
+		// 	var getData = null;
+		// 	await fetch("http://127.0.0.1:8000/stt/test", {
+		// 		method: "GET",
+		// 		headers: {
+		// 			"Content-Type": "application/json",
+		// 		},
+		// 	})
+		// 		.then((Response) => Response.json())
+		// 		.then(function (data) {
+		// 			getData = data;
+		// 		});
+		// 	this.sentiment = getData.sentiment;
+		// 	this.highest_count = getData.highest_count;
+		// 	this.words = getData.words;
+		// 	this.conversations = getData.conversations;
+		// 	this.date = getData.date;
+		// 	this.request_id = getData.request_id;
+		// 	this.isLoading = false;
+		// },
+	},
+	created() {
+		this.getData("request_id", "ORG_1");
 	},
 	components: {
 		Loader,
