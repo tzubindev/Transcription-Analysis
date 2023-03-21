@@ -131,7 +131,7 @@
 											<p class="leading-">{{ c.content }}</p>
 											<span class="tooltiptext-l bg-gray-800/80 text-white"
 												><p>{{ c.sentiment }}</p>
-												<p>Confidence: {{ c.confidence * 100 }}%</p></span
+												<p>Confidence: {{ c.confidence }}%</p></span
 											>
 										</div>
 										<div class="rounded-full h-8 w-8 mx-2 mr-0 mt-1 bg-[#393939] p-2"><img src="./assets/agent.png" /></div>
@@ -146,12 +146,12 @@
 											<p class="leading-5">{{ c.content }}</p>
 											<span class="tooltiptext-r bg-gray-800/80 text-white">
 												<p>{{ c.sentiment }}</p>
-												<p>Confidence: {{ c.confidence * 100 }}%</p>
+												<p>Confidence: {{ c.confidence }}%</p>
 											</span>
 										</div>
 									</div>
 									<div class="bg-white my-2 mx-3 p-4 shadow-lg rounded-2xl" v-if="c.isClicked">
-										<div class="flex items-center justify-center h-full p-2 mt-2 rounded-lg mr-2 bg-[#393939] text-white cursor-pointer hover:bg-[#5c5c5c] transition" v-if="c.isClicked" @click="event_change('convert_target', request_id, c.conversation_id, c.from)">
+										<div class="flex items-center justify-center h-full p-2 mt-2 rounded-lg mr-2 bg-[#393939] text-white cursor-pointer hover:bg-[#5c5c5c] transition" v-if="c.isClicked" @click="event_change('convert_target', c.conversation_id, request_id, c.from)">
 											Convert Conversation Target To
 											<b class="ml-2 p-1.5 py-0.5 bg-gray-100 text-black rounded-md shadow-md">{{ c.from === "client" ? "Agent" : "Client" }}</b>
 										</div>
@@ -159,17 +159,17 @@
 										<div v-if="c.comment !== ''" class="sm:hidden block border-t-2 border-t-stone-200 mt-6">
 											<div class="relative mb-4 mt-6">
 												<label for="comment" class="absolute -top-2 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900">Modify Your Comment Here</label>
-												<textarea name="comment" class="comment block w-full rounded-md border-0 p-4 min-h-[200px] bg-white text-gray-900 shadow-sm outline outline-2 outline-black placeholder:text-gray-400 sm:text-sm sm:leading-6" />
+												<textarea name="comment" id="comment_e" class="comment block w-full rounded-md border-0 p-4 min-h-[200px] bg-white text-gray-900 shadow-sm outline outline-2 outline-black placeholder:text-gray-400 sm:text-sm sm:leading-6" />
 											</div>
 											<div class="w-full flex justify-end">
-												<button type="button" class="w-full rounded-md bg-green-500 py-1 font-semibold text-white shadow-sm hover:bg-[#222222] transition" @click="event_change('update_comment')">Save Comment Changes</button>
+												<button type="button" class="w-full rounded-md bg-green-500 py-1 font-semibold text-white shadow-sm hover:bg-[#222222] transition" @click="event_change('update_comment', conversation_clicked, request_id, 'embed')">Save Comment Changes</button>
 											</div>
 										</div>
 										<div v-if="c.comment === ''">
 											<h1 class="text-left font-bold mb-2 border-t-2 border-t-stone-200 mt-6 pt-2">Add Comment</h1>
 											<textarea id="addcomment" class="w-[98%] min-h-[50px] h-max-[100px] mb-2 p-2 bg-gray-100 outline outline-gray-800 outline-2 rounded-sm" v-model="comment_wait_to_post"></textarea>
 											<div class="w-full flex justify-end">
-												<button type="button" class="rounded-md bg-[#393939] py-2 px-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#222222] transition" @click="event_change('add_comment', request_id, c.conversation_id)">Add</button>
+												<button type="button" class="rounded-md bg-[#393939] py-2 px-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#222222] transition" @click="event_change('add_comment', c.conversation_id, request_id)">Add</button>
 											</div>
 										</div>
 									</div>
@@ -196,10 +196,10 @@
 						<div class="max-h-[300px] p-5 bg-white text-gray-500 overflow-y-auto rounded-b-md" v-if="isCommentEditShowable">
 							<div class="relative mb-4">
 								<label for="comment" class="absolute -top-2 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900">Modify Your Comment Here</label>
-								<textarea name="comment" class="comment block w-full rounded-md border-0 p-4 min-h-[200px] bg-white text-gray-900 shadow-sm outline outline-2 outline-black placeholder:text-gray-400 sm:text-sm sm:leading-6"></textarea>
+								<textarea name="comment" id="comment_s" class="comment block w-full rounded-md border-0 p-4 min-h-[200px] bg-white text-gray-900 shadow-sm outline outline-2 outline-black placeholder:text-gray-400 sm:text-sm sm:leading-6"></textarea>
 							</div>
 							<div class="w-full flex justify-end">
-								<button type="button" class="rounded-md bg-[#393939] py-2.5 px-3.5 text-sm font-semibold text-white shadow-sm hover:bg-[#222222] transition">Save Comment Changes</button>
+								<button type="button" class="rounded-md bg-[#393939] py-2.5 px-3.5 text-sm font-semibold text-white shadow-sm hover:bg-[#222222] transition" @click="event_change('update_comment', conversation_clicked, request_id, 'side')">Save Comment Changes</button>
 							</div>
 						</div>
 						<div id="comment_description" class="max-h-[300px] p-8 px-6 bg-white text-gray-500 overflow-y-auto rounded-b-md" v-if="!isCommentEditShowable">
@@ -221,6 +221,7 @@ import Loader from "./components/loader.vue";
 export default {
 	data() {
 		return {
+			conversation_clicked: null,
 			isLoading: false,
 			isProcessing: false,
 			search: null,
@@ -263,7 +264,7 @@ export default {
 		},
 		async event_change(event_name, param_1 = null, param_2 = null, param_3 = null) {
 			if (event_name === "word_trends") {
-				const re = new RegExp(param_1.word);
+				const re = new RegExp(param_1.word, "ig");
 
 				var conversations = document.getElementsByClassName("conv");
 				for (let conv of conversations) {
@@ -290,11 +291,13 @@ export default {
 				this.isNegClicked = !this.isNegClicked;
 			}
 			if (event_name === "click_add_comment") {
+				// param_1 = C object
 				if (!param_1.isClicked) {
 					this.conversations.forEach((node) => (node.isClicked = false));
 					param_1.isClicked = !param_1.isClicked;
+					this.conversation_clicked = param_1.conversation_id;
 					this.isCommentEditShowable = param_1.comment !== "";
-					if (!this.isCommentEditShowable && param_1.isClicked) document.getElementById("comment_description").childNodes[0].innerHTML = "This conversation has no comment.";
+					if (!this.isCommentEditShowable && param_1.isClicked && (await this.waitForEle("#comment_description"))) document.getElementById("comment_description").childNodes[0].innerHTML = "This conversation has no comment.";
 					if (await this.waitForEle(".comment")) Array.from(document.getElementsByClassName("comment")).map((node) => (node.value = param_1.comment));
 				} else {
 					param_1.isClicked = !param_1.isClicked;
@@ -311,22 +314,34 @@ export default {
 			if (event_name === "add_comment") {
 				let comment = document.getElementById("addcomment").value;
 				if (comment) {
-					this.postData(event_name, param_1, param_2);
+					await this.postData(event_name, param_1, param_2);
+					this.getData("all_data", this.selected_request);
 				} else {
 					this.$notify({ title: "Please write something to add a comment", position: "bottom left", type: "error", duration: 1300 });
 				}
 			}
 			if (event_name === "update_comment") {
-				// param_1 = request_id
-				// param_2 = conversation_id
-				this.postData(event_name, param_1, param_2);
+				// param_1 = conversation_id
+				// param_2 = request_id
+				// param_3 = side / embed
+				let comment = null;
+				if (param_3 === "side") comment = document.getElementById("comment_s").value;
+				if (param_3 === "embed") comment = document.getElementById("comment_e").value;
+				if (comment) {
+					console.log(comment);
+					await this.postData(event_name, param_1, param_2, comment);
+					this.getData("all_data", this.selected_request);
+				} else {
+					this.$notify({ title: "Please write something to add a comment", position: "bottom left", type: "error", duration: 1300 });
+				}
 			}
 			if (event_name === "convert_target") {
-				// param_1 = request_id
-				// param_2 = conversation_id
+				// param_1 = conversation_id
+				// param_2 = request_id
 				// param_3 = from
 				param_3 = param_3 === "client" ? "agent" : "client";
-				this.postData(event_name, param_1, param_2, param_3);
+				await this.postData(event_name, param_1, param_2, param_3);
+				this.getData("all_data", this.selected_request);
 			}
 		},
 		searchWords(word) {
@@ -374,7 +389,22 @@ export default {
 				// 		data = d;
 				// 	});
 			}
+
 			if (type === "update_comment") {
+				data = {
+					comment: param_3,
+				};
+				await fetch(`http://127.0.0.1:8000/stt/updateComment/${param_1}/${param_2}`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(data),
+				})
+					.then((Response) => Response.json())
+					.then(function (d) {
+						data = d;
+					});
 				this.$notify({
 					title: "Successfully Saved.",
 					position: "bottom left",
@@ -422,7 +452,7 @@ export default {
 					.then(function (d) {
 						data = d;
 					});
-				this.request_ids = data.request_id;
+				this.request_ids = JSON.parse(data.Request);
 			}
 			if (type === "all_data") {
 				var getData = null;
@@ -436,7 +466,10 @@ export default {
 					.then(function (data) {
 						getData = data;
 					});
+
 				if (!getData.error) {
+					getData = JSON.parse(getData.Request);
+
 					this.sentiment = getData.sentiment;
 					this.highest_count = getData.highest_count;
 					this.words = getData.words;
@@ -486,7 +519,7 @@ export default {
 		// },
 	},
 	created() {
-		this.getData("request_id", "ORG_1");
+		this.getData("request_id", "org1");
 	},
 	components: {
 		Loader,
