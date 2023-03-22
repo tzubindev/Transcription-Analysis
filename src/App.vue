@@ -316,7 +316,7 @@ export default {
 			if (event_name === "add_comment") {
 				let comment = document.getElementById("addcomment").value;
 				if (comment) {
-					let res = await this.postData(event_name, param_1, param_2, this.conversations.filter((node) => node.conversation_id === param_1)[0].content);
+					let res = await this.postData(event_name, param_1, param_2, this.conversations.filter((node) => node.conversation_id === param_1)[0].comment);
 
 					// clear word clicked
 					if (!res) {
@@ -386,6 +386,7 @@ export default {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: "asdasd8adasd",
 					},
 					body: JSON.stringify(data),
 				})
@@ -418,6 +419,7 @@ export default {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: "asdasd8adasd",
 					},
 					body: JSON.stringify(data),
 				})
@@ -446,6 +448,7 @@ export default {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: "asdasd8adasd",
 					},
 					body: JSON.stringify(data),
 				})
@@ -477,6 +480,7 @@ export default {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: "asdasd8adasd",
 					},
 				})
 					.then((Response) => Response.json())
@@ -491,6 +495,7 @@ export default {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: "asdasd8adasd",
 					},
 				})
 					.then((Response) => Response.json())
