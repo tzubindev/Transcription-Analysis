@@ -473,6 +473,9 @@ export default {
 					this.sentiment = getData.sentiment;
 					this.highest_count = getData.highest_count;
 					this.words = getData.words;
+					this.words.sort((a, b) => {
+						return -1 * (a.count - b.count);
+					});
 					this.conversations = getData.conversations;
 					this.date = getData.date;
 					this.request_id = getData.request_id;
