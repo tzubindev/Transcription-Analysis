@@ -324,6 +324,7 @@ export default {
 				// param_1 = conversation_id
 				// param_2 = request_id
 				// param_3 = side / embed
+				// param_4 = conversation object
 				let comment = null;
 				if (param_3 === "side") comment = document.getElementById("comment_s").value;
 				if (param_3 === "embed") comment = document.getElementById("comment_e").value;
@@ -331,6 +332,7 @@ export default {
 					console.log(comment);
 					await this.postData(event_name, param_1, param_2, comment);
 					this.getData("all_data", this.selected_request);
+					this.isCommentEditShowable = !this.isCommentEditShowable;
 				} else {
 					this.$notify({ title: "Please write something to add a comment", position: "bottom left", type: "error", duration: 1300 });
 				}
