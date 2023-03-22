@@ -341,7 +341,8 @@ export default {
 				if (param_3 === "embed") comment = document.getElementById("comment_e").value;
 				if (comment) {
 					let old_comment_id = this.conversation_clicked;
-					await this.postData(event_name, param_1, param_2, comment, this.conversations.filter(({ conversation_id }) => conversation_id === old_comment_id)[0].comment);
+					let old_comment = this.conversations.filter(({ conversation_id }) => conversation_id === old_comment_id)[0].comment;
+					let res = await this.postData(event_name, param_1, param_2, comment, old_comment);
 					// clear word clicked
 					if (!res) {
 						for (const w of this.words) this.event_change("word_trends", w, "clear");
@@ -374,7 +375,7 @@ export default {
 			var data = null;
 			if (type === "add_comment") {
 				data = {
-					original_comment: param_3,
+					old_comment: param_3,
 					comment: this.comment_wait_to_post,
 				};
 				await fetch(`http://127.0.0.1:8000/stt/updateComment/${param_1}/${param_2}`, {
@@ -399,13 +400,11 @@ export default {
 					type: "success",
 					duration: 1300,
 				});
-
-				return flase;
 			}
 
 			if (type === "update_comment") {
 				data = {
-					original_comment: param_4,
+					old_comment: param_4,
 					comment: param_3,
 				};
 				await fetch(`http://127.0.0.1:8000/stt/updateComment/${param_1}/${param_2}`, {
@@ -427,7 +426,6 @@ export default {
 					type: "success",
 					duration: 1300,
 				});
-				return false;
 			}
 			if (type === "convert_target") {
 				data = {
@@ -453,6 +451,7 @@ export default {
 				});
 			}
 			setTimeout(() => (this.isProcessing = false), 500);
+			return false;
 		},
 		async getData(type, param_1 = null, param_2 = null, param_3 = null) {
 			this.isLoading = true;
