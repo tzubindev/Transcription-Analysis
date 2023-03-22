@@ -391,7 +391,10 @@ export default {
 					});
 				this.comment_wait_to_post = null;
 
-				if (data.response === "Error") return true;
+				if (data.response === "Error") {
+					setTimeout(() => (this.isProcessing = false), 500);
+					return true;
+				}
 
 				// NEED VALIDATION HERE
 				this.$notify({
@@ -419,7 +422,10 @@ export default {
 						data = d;
 					});
 
-				if (data.response === "Error") return true;
+				if (data.response === "Error") {
+					setTimeout(() => (this.isProcessing = false), 500);
+					return true;
+				}
 				this.$notify({
 					title: "Successfully Saved.",
 					position: "bottom left",
