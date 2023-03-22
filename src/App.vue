@@ -390,7 +390,7 @@ export default {
 					});
 				this.comment_wait_to_post = null;
 
-				if (data.response === "Error") return 1;
+				if (data.response === "Error") return true;
 
 				// NEED VALIDATION HERE
 				this.$notify({
@@ -400,16 +400,7 @@ export default {
 					duration: 1300,
 				});
 
-				// await fetch(`http://127.0.0.1:8000/stt/test/${param_1}`, {
-				// 	method: "GET",
-				// 	headers: {
-				// 		"Content-Type": "application/json",
-				// 	},
-				// })
-				// 	.then((Response) => Response.json())
-				// 	.then(function (d) {
-				// 		data = d;
-				// 	});
+				return flase;
 			}
 
 			if (type === "update_comment") {
@@ -429,13 +420,14 @@ export default {
 						data = d;
 					});
 
-				if (data.response === "Error") return 1;
+				if (data.response === "Error") return true;
 				this.$notify({
 					title: "Successfully Saved.",
 					position: "bottom left",
 					type: "success",
 					duration: 1300,
 				});
+				return false;
 			}
 			if (type === "convert_target") {
 				data = {
