@@ -319,10 +319,14 @@ export default {
 					let res = await this.postData(event_name, param_1, param_2, this.conversations.filter((node) => node.conversation_id === param_1)[0].content);
 
 					// clear word clicked
-					for (const w of this.words) this.event_change("word_trends", w, "clear");
+					if (!res) {
+						for (const w of this.words) this.event_change("word_trends", w, "clear");
+					} else {
+						this.$notify({ title: "Data is UPDATED by someone, please try again.", position: "bottom left", type: "error", duration: 1300 });
+					}
 
 					this.getData("all_data", this.selected_request);
-					// if (res.error) this.$notify({ title: "Someone has changed this data. Please try again", position: "bottom left", type: "error", duration: 1300 });
+					// if (res && res.error) this.$notify({ title: "Someone has changed this data. Please try again", position: "bottom left", type: "error", duration: 1300 });
 				} else {
 					this.$notify({ title: "Please write something to add a comment", position: "bottom left", type: "error", duration: 1300 });
 				}
@@ -337,9 +341,13 @@ export default {
 				if (param_3 === "embed") comment = document.getElementById("comment_e").value;
 				if (comment) {
 					let old_comment_id = this.conversation_clicked;
-					let res = await this.postData(event_name, param_1, param_2, comment, this.conversations.filter(({ conversation_id }) => conversation_id === old_comment_id)[0].comment);
+					await this.postData(event_name, param_1, param_2, comment, this.conversations.filter(({ conversation_id }) => conversation_id === old_comment_id)[0].comment);
 					// clear word clicked
-					for (const w of this.words) this.event_change("word_trends", w, "clear");
+					if (!res) {
+						for (const w of this.words) this.event_change("word_trends", w, "clear");
+					} else {
+						this.$notify({ title: "Data is UPDATED by someone, please try again.", position: "bottom left", type: "error", duration: 1300 });
+					}
 					this.getData("all_data", this.selected_request);
 					this.isCommentEditShowable = !this.isCommentEditShowable;
 				} else {
@@ -382,6 +390,8 @@ export default {
 					});
 				this.comment_wait_to_post = null;
 
+				if (data.response === "Error") return 1;
+
 				// NEED VALIDATION HERE
 				this.$notify({
 					title: "Successfully Added.",
@@ -404,7 +414,7 @@ export default {
 
 			if (type === "update_comment") {
 				data = {
-					// original_comment: param_4,
+					original_comment: param_4,
 					comment: param_3,
 				};
 				await fetch(`http://127.0.0.1:8000/stt/updateComment/${param_1}/${param_2}`, {
@@ -418,6 +428,8 @@ export default {
 					.then(function (d) {
 						data = d;
 					});
+
+				if (data.response === "Error") return 1;
 				this.$notify({
 					title: "Successfully Saved.",
 					position: "bottom left",
