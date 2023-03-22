@@ -267,6 +267,7 @@ export default {
 				const re = new RegExp(param_1.word, "ig");
 
 				var conversations = document.getElementsByClassName("conv");
+
 				for (let conv of conversations) {
 					let text = conv.getElementsByTagName("p")[0].innerHTML;
 					if (re.test(text)) {
@@ -274,14 +275,14 @@ export default {
 						const matchedCases = [...conv.getElementsByTagName("p")[0].innerHTML.matchAll(regEx)];
 						let target = "highlight";
 						if (param_1.isSensitive) target = "highlight-s";
-						if (!param_1.isClicked) {
+
+						if (!param_1.isClicked && !param_2) {
 							for (let i = 0; i < matchedCases.length; i++) conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(matchedCases[i][0], `<span class="${target}">` + matchedCases[i][0] + "</span>");
-						} else {
+						} else if (param_1.isClicked || param_2 === "clear") {
 							for (let i = 0; i < matchedCases.length; i++) conv.getElementsByTagName("p")[0].innerHTML = conv.getElementsByTagName("p")[0].innerHTML.replace(`<span class="${target}">` + matchedCases[i][0] + "</span>", matchedCases[i][0]);
 						}
 					}
 				}
-
 				param_1.isClicked = !param_1.isClicked;
 			}
 			if (event_name === "click_sentiment_positive") {
@@ -293,6 +294,7 @@ export default {
 			if (event_name === "click_add_comment") {
 				// param_1 = C object
 				if (!param_1.isClicked) {
+					this.comment_wait_to_post = null;
 					this.conversations.forEach((node) => (node.isClicked = false));
 					param_1.isClicked = !param_1.isClicked;
 					this.conversation_clicked = param_1.conversation_id;
@@ -314,8 +316,13 @@ export default {
 			if (event_name === "add_comment") {
 				let comment = document.getElementById("addcomment").value;
 				if (comment) {
-					await this.postData(event_name, param_1, param_2);
+					let res = await this.postData(event_name, param_1, param_2, this.conversations.filter((node) => node.conversation_id === param_1)[0].content);
+
+					// clear word clicked
+					for (const w of this.words) this.event_change("word_trends", w, "clear");
+
 					this.getData("all_data", this.selected_request);
+					// if (res.error) this.$notify({ title: "Someone has changed this data. Please try again", position: "bottom left", type: "error", duration: 1300 });
 				} else {
 					this.$notify({ title: "Please write something to add a comment", position: "bottom left", type: "error", duration: 1300 });
 				}
@@ -329,8 +336,10 @@ export default {
 				if (param_3 === "side") comment = document.getElementById("comment_s").value;
 				if (param_3 === "embed") comment = document.getElementById("comment_e").value;
 				if (comment) {
-					console.log(comment);
-					await this.postData(event_name, param_1, param_2, comment);
+					let old_comment_id = this.conversation_clicked;
+					let res = await this.postData(event_name, param_1, param_2, comment, this.conversations.filter(({ conversation_id }) => conversation_id === old_comment_id)[0].comment);
+					// clear word clicked
+					for (const w of this.words) this.event_change("word_trends", w, "clear");
 					this.getData("all_data", this.selected_request);
 					this.isCommentEditShowable = !this.isCommentEditShowable;
 				} else {
@@ -352,11 +361,12 @@ export default {
 				this.words.forEach((node) => (node.isSearched = re.test(node.word)));
 			} else this.words.forEach((node) => (node.isSearched = true));
 		},
-		async postData(type, param_1 = null, param_2 = null, param_3 = null) {
+		async postData(type, param_1 = null, param_2 = null, param_3 = null, param_4 = null) {
 			this.isProcessing = true;
 			var data = null;
 			if (type === "add_comment") {
 				data = {
+					original_comment: param_3,
 					comment: this.comment_wait_to_post,
 				};
 				await fetch(`http://127.0.0.1:8000/stt/updateComment/${param_1}/${param_2}`, {
@@ -394,6 +404,7 @@ export default {
 
 			if (type === "update_comment") {
 				data = {
+					// original_comment: param_4,
 					comment: param_3,
 				};
 				await fetch(`http://127.0.0.1:8000/stt/updateComment/${param_1}/${param_2}`, {
@@ -500,29 +511,7 @@ export default {
 			setTimeout(() => (this.isLoading = false), 500);
 		},
 	},
-	computed: {
-		// async fetchData() {
-		// 	this.isLoading = true;
-		// 	var getData = null;
-		// 	await fetch("http://127.0.0.1:8000/stt/test", {
-		// 		method: "GET",
-		// 		headers: {
-		// 			"Content-Type": "application/json",
-		// 		},
-		// 	})
-		// 		.then((Response) => Response.json())
-		// 		.then(function (data) {
-		// 			getData = data;
-		// 		});
-		// 	this.sentiment = getData.sentiment;
-		// 	this.highest_count = getData.highest_count;
-		// 	this.words = getData.words;
-		// 	this.conversations = getData.conversations;
-		// 	this.date = getData.date;
-		// 	this.request_id = getData.request_id;
-		// 	this.isLoading = false;
-		// },
-	},
+
 	created() {
 		this.getData("request_id", "org1");
 	},
