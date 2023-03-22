@@ -359,8 +359,12 @@ export default {
 				// param_1 = conversation_id
 				// param_2 = request_id
 				// param_3 = from
+				let old_sender = param_3;
 				param_3 = param_3 === "client" ? "agent" : "client";
-				await this.postData(event_name, param_1, param_2, param_3);
+				let res = await this.postData(event_name, param_1, param_2, param_3, old_sender);
+				if (res) {
+					this.$notify({ title: "Data is UPDATED by someone, please try again.", position: "bottom left", type: "error", duration: 1300 });
+				}
 				this.getData("all_data", this.selected_request);
 			}
 		},
@@ -435,6 +439,7 @@ export default {
 			}
 			if (type === "convert_target") {
 				data = {
+					old_sender: param_4,
 					sender: param_3,
 				};
 				await fetch(`http://127.0.0.1:8000/stt/updateSender/${param_1}/${param_2}`, {
@@ -448,6 +453,10 @@ export default {
 					.then(function (d) {
 						data = d;
 					});
+				if (data.response === "Error") {
+					setTimeout(() => (this.isProcessing = false), 500);
+					return true;
+				}
 
 				this.$notify({
 					title: "Successfully Converted.",
