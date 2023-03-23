@@ -162,6 +162,7 @@
 												<textarea name="comment" id="comment_e" class="comment block w-full rounded-md border-0 p-4 min-h-[200px] bg-white text-gray-900 shadow-sm outline outline-2 outline-black placeholder:text-gray-400 sm:text-sm sm:leading-6" />
 											</div>
 											<div class="w-full flex justify-end">
+												<button type="button" class="w-full rounded-md bg-red-500 py-1 font-semibold text-white shadow-sm hover:bg-[#b91c1c] transition mr-2" @click="event_change('delete_comment', conversation_clicked, request_id, 'embed')">Delete Comment</button>
 												<button type="button" class="w-full rounded-md bg-green-500 py-1 font-semibold text-white shadow-sm hover:bg-[#222222] transition" @click="event_change('update_comment', conversation_clicked, request_id, 'embed')">Save Comment Changes</button>
 											</div>
 										</div>
@@ -199,6 +200,7 @@
 								<textarea name="comment" id="comment_s" class="comment block w-full rounded-md border-0 p-4 min-h-[200px] bg-white text-gray-900 shadow-sm outline outline-2 outline-black placeholder:text-gray-400 sm:text-sm sm:leading-6"></textarea>
 							</div>
 							<div class="w-full flex justify-end">
+								<button type="button" class="rounded-md bg-[#dc2626] py-2.5 px-2 text-sm font-semibold text-white shadow-sm hover:bg-[#b91c1c] transition mr-2" @click="event_change('delete_comment', conversation_clicked, request_id, 'side')">Delete Comment</button>
 								<button type="button" class="rounded-md bg-[#393939] py-2.5 px-3.5 text-sm font-semibold text-white shadow-sm hover:bg-[#222222] transition" @click="event_change('update_comment', conversation_clicked, request_id, 'side')">Save Comment Changes</button>
 							</div>
 						</div>
@@ -355,6 +357,22 @@ export default {
 					this.$notify({ title: "Please write something to add a comment", position: "bottom left", type: "error", duration: 1300 });
 				}
 			}
+			if (event_name === "delete_comment") {
+				// param_1 = conversation_id
+				// param_2 = request_id
+				// param_3 = side / embed
+				// param_4 = conversation object
+				let old_comment_id = this.conversation_clicked;
+				let old_comment = this.conversations.filter(({ conversation_id }) => conversation_id === old_comment_id)[0].comment;
+				let res = await this.postData(event_name, param_1, param_2, old_comment);
+				if (!res) {
+					for (const w of this.words) this.event_change("word_trends", w, "clear");
+				} else {
+					this.$notify({ title: "Data is UPDATED by someone, please try again.", position: "bottom left", type: "error", duration: 1300 });
+				}
+				this.getData("all_data", this.selected_request);
+				this.isCommentEditShowable = !this.isCommentEditShowable;
+			}
 			if (event_name === "convert_target") {
 				// param_1 = conversation_id
 				// param_2 = request_id
@@ -416,6 +434,34 @@ export default {
 					comment: param_3,
 				};
 				await fetch(`http://127.0.0.1:8000/stt/updateComment/${param_1}/${param_2}`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: "asdasd8adasd",
+					},
+					body: JSON.stringify(data),
+				})
+					.then((Response) => Response.json())
+					.then(function (d) {
+						data = d;
+					});
+
+				if (data.response === "Error") {
+					setTimeout(() => (this.isProcessing = false), 500);
+					return true;
+				}
+				this.$notify({
+					title: "Successfully Saved.",
+					position: "bottom left",
+					type: "success",
+					duration: 1300,
+				});
+			}
+			if (type === "delete_comment") {
+				data = {
+					old_comment: param_3,
+				};
+				await fetch(`http://127.0.0.1:8000/stt/deleteComment/${param_1}/${param_2}`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
