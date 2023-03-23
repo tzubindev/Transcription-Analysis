@@ -23,7 +23,7 @@
 						<div class="w-full flex justify-start text-sm font-semibold">Sentiment Distribution:</div>
 						<div class="w-full h-6 mt-2 flex gap-1 px-2" v-if="sentiment">
 							<div
-								class="bg-red-500 hover:bg-red-400 rounded-lg text-white flex items-center justify-center cursor-pointer text-xs md:text-sm"
+								class="max-w-[93%] min-w-[7%] bg-red-500 hover:bg-red-400 rounded-lg text-white flex items-center justify-center cursor-pointer text-xs md:text-sm"
 								:style="'width:' + sentiment.distribution.neg + '%;'"
 								:class="{ 'bg-red-800 hover:bg-red-500': isNegClicked }"
 								@click="event_change('click_sentiment_negative', sentiment.distribution)"
@@ -31,7 +31,7 @@
 								{{ sentiment.distribution.neg }}%
 							</div>
 							<div
-								class="bg-green-500 hover:bg-green-400 rounded-lg text-white flex items-center justify-center cursor-pointer text-xs md:text-sm"
+								class="max-w-[93%] min-w-[7%] bg-green-500 hover:bg-green-400 rounded-lg text-white flex items-center justify-center cursor-pointer text-xs md:text-sm"
 								:style="'width:' + sentiment.distribution.pos + '%;'"
 								:class="{ 'bg-green-800 hover:bg-green-500': isPosClicked }"
 								@click="event_change('click_sentiment_positive', sentiment.distribution)"
@@ -186,7 +186,7 @@
 					<div class="block w-full max-h-[600px] shadow-md">
 						<div class="max-h-[300px] p-5 pb-3 bg-white text-gray-500 overflow-y-auto rounded-b-md grid grid-cols-4 gap-y-2 text-sm">
 							<div class="text-white max-h-[48px] bg-[#393939] p-2 py-1 rounded-md flex items-center justify-center shadow-lg">Request ID</div>
-							<v-select class="text-black pl-4 text-center col-span-3" label="ID" :items="request_ids" variant="solo" density="comfortable" v-model="selected_request" :change="event_change('request')"></v-select>
+							<v-select class="truncate text-black pl-4 text-center col-span-3" label="ID" :items="request_ids" variant="solo" density="comfortable" v-model="selected_request" :change="event_change('request')"></v-select>
 						</div>
 					</div>
 				</div>
