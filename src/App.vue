@@ -400,7 +400,7 @@ export default {
 					old_comment: param_3,
 					comment: this.comment_wait_to_post,
 				};
-				await fetch(`http://127.0.0.1:8000/stt/updateComment/${param_1}/${param_2}`, {
+				await fetch(`http://193.168.10.183:8000/stt/updateComment/${param_1}/${param_2}`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -433,7 +433,7 @@ export default {
 					old_comment: param_4,
 					comment: param_3,
 				};
-				await fetch(`http://127.0.0.1:8000/stt/updateComment/${param_1}/${param_2}`, {
+				await fetch(`http://193.168.10.183:8000/stt/updateComment/${param_1}/${param_2}`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -461,7 +461,7 @@ export default {
 				data = {
 					old_comment: param_3,
 				};
-				await fetch(`http://127.0.0.1:8000/stt/deleteComment/${param_1}/${param_2}`, {
+				await fetch(`http://193.168.10.183:8000/stt/deleteComment/${param_1}/${param_2}`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -490,7 +490,7 @@ export default {
 					old_sender: param_4,
 					sender: param_3,
 				};
-				await fetch(`http://127.0.0.1:8000/stt/updateSender/${param_1}/${param_2}`, {
+				await fetch(`http://193.168.10.183:8000/stt/updateSender/${param_1}/${param_2}`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -522,7 +522,7 @@ export default {
 			var data = null;
 
 			if (type === "request_id") {
-				await fetch(`http://127.0.0.1:8000/stt/requests/${param_1}`, {
+				await fetch(`http://193.168.10.183:8000/stt/requests/${param_1}`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
@@ -537,7 +537,7 @@ export default {
 			}
 			if (type === "all_data") {
 				var getData = null;
-				await fetch(`http://127.0.0.1:8000/stt/request/${param_1}`, {
+				await fetch(`http://193.168.10.183:8000/stt/request/${param_1}`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
